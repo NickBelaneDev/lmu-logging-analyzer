@@ -1,0 +1,224 @@
+# -----------------------------------------------------------------------------
+# LOG ANALYZER RULESET
+# -----------------------------------------------------------------------------
+# Each rule consists of:
+# - id: Unique identifier (used in the report)
+# - active: true/false (for quick deactivation)
+# - category: Grouping (Hardware, Error, State, Info)
+# - pattern: The regular expression (Regex). Use (?P<name>...) for data extraction!
+# - level: Severity level (INFO, WARNING, ERROR, CRITICAL)
+# - trigger_file: (Optional) Only apply if log line comes from this file (Performance!)
+# - solution: (Optional) Suggestion for resolution for the LLM/user
+# -----------------------------------------------------------------------------
+
+rules:
+  # --- SECTION 1: STATE MACHINE ---
+  # These rules change the context of the analysis (e.g., "Currently driving" vs "In menu")
+  
+  - id: "STATE_ENTER_GAME"
+    active: true
+    category: "state_machine"
+    pattern: "Entered Game::Enter\\(\\)"
+    level: "INFO"
+    trigger_file: "game.cpp"
+    description: "Player enters the main loop"
+    payload: 
+      new_state: "IN_GAME"
+
+  - id: "STATE_ENTER_TRACK"
+    active: true
+    category: "state_machine"
+    pattern: "Entered Track::Enter\\(\\)"
+    level: "INFO"
+    trigger_file: "game.cpp"
+    description: "Track is being loaded/entered"
+    payload:
+      new_state: "ON_TRACK"
+
+  - id: "STATE_EXIT_GAME"
+    active: true
+    category: "state_machine"
+    pattern: "Entered Game::Exit\\(\\)"
+    level: "INFO"
+    trigger_file: "game.cpp"
+    description: "Game is being closed"
+    payload:
+      new_state: "SHUTDOWN"
+
+  - id: "STATE_SESSION_CHANGE"
+    active: true
+    category: "state_machine"
+    pattern: "Changing session state from (?P<old_state>\\w+) to (?P<new_state>\\w+)"
+    level: "INFO"
+    trigger_file: "game.cpp"
+    description: "Tracks the player activity (Menu, Driving, Paused, Loading)."
+
+  - id: "STATE_SESSION_TYPE"
+    active: true
+    category: "state_machine"
+    pattern: "Changing session from (?P<old_type>\\w+) to (?P<new_type>\\w+)"
+    level: "INFO"
+    trigger_file: "game.cpp"
+    description: "Tracks the race weekend progression (Practice -> Qualify -> Race)."
+
+  - id: "STATE_GAME_PHASE"
+    active: true
+    category: "state_machine"
+    pattern: "Changing state from (?P<old_phase>\\w+) to (?P<new_phase>\\w+)"
+    level: "INFO"
+    trigger_file: "game.cpp"
+    description: "Tracks internal engine loading phases."
+
+
+  # --- SECTION 2: HARDWARE & SYSTEM ---
+  # Important for tracing performance issues back to hardware
+
+  - id: "HW_CPU_INFO"
+    active: true
+    category: "hardware"
+    level: "INFO"
+    trigger_file: "main.cpp"
+    pattern: "Hardware info: CPU: \"(?P<cpu_model>.*?)\" (?P<cores>\\d+) cores"
+    description: "Detected CPU hardware"
+
+  - id: "HW_RAM_INFO"
+    active: true
+    category: "hardware"
+    level: "INFO"
+    trigger_file: "main.cpp"
+    pattern: "Memory: virtual: (?P<virt_mem>\\d+)MB physical: (?P<phys_mem>\\d+)MB"
+    description: "Available memory"
+
+  - id: "HW_GPU_DETECT"
+    active: true
+    category: "hardware"
+    level: "INFO"
+    pattern: "D3D9 Video Card: (?P<gpu_name>.*?) \\(VRAM: (?P<vram>\\d+) MB\\)"
+    description: "Detected graphics card"
+
+  - id: "HW_INPUT_DEVICE"
+    active: true
+    category: "hardware"
+    level: "INFO"
+    trigger_file: "hwinput.cpp"
+    pattern: "Device - Name:(?P<device_name>.*?) VIPDID"
+    description: "Input device detected (steering wheel/pedals)"
+
+  - id: "HW_STEER_RANGE_FAIL"
+    active: true
+    category: "hardware"
+    level: "WARNING"
+    trigger_file: "hwinput.cpp"
+    pattern: "Failed to read steering wheel range from driver"
+    description: "Game could not auto-detect wheel rotation."
+    solution: "Check wheel driver software (True Drive/GHub) or ensure 'Software Lock' is enabled."
+
+  - id: "HW_STEER_RANGE_SET"
+    active: true
+    category: "hardware"
+    level: "INFO"
+    trigger_file: "hwinput.cpp"
+    pattern: "Setting steering wheel range to (?P<degrees>\\d+) degrees"
+    description: "Game is enforcing a specific steering lock."
+
+  # --- SECTION 3: ERRORS & WARNINGS (Assets) ---
+  # This is where it gets critical for stutters or crashes
+  - id: "ERR_OPENING"
+    active: true
+    category: "asset_error"
+    level: "WARNING"
+    pattern: "Error opening (?P<file_name>.*)"
+    description: "Missing or corrupt File, unable to open."
+
+  - id: "ERR_TEXTURE_MISSING"
+    active: true
+    category: "asset_error"
+    level: "WARNING"
+    trigger_file: "Texture.cpp"
+    pattern: "TextureManager::remove: texture (?P<texture_name>.*?) not found"
+    description: "Texture could not be properly removed or found."
+    solution: "Verify integrity of game files (Steam). If mod content: reinstall mod."
+
+  - id: "ERR_ITEM_MISSING"
+    active: true
+    category: "asset_error"
+    level: "WARNING"
+    trigger_file: "ContentLoadi"
+    pattern: "Failed to find item: (?P<item_name>\\w+)"
+    description: "A game object or parameter is missing."
+    solution: "Check if all required packages are installed."
+
+  - id: "ERR_MAS_FILE_MISSING"
+    active: true
+    category: "asset_error"
+    level: "ERROR"
+    trigger_file: "Masfile.cpp"
+    pattern: "Error opening MAS file (?P<mas_file>.*?)"
+    description: "Critical container file (MAS) missing."
+    solution: "This usually indicates a corrupt install. Run Steam File Validation immediately."
+
+  - id: "ERR_AUDIO_MISSING"
+    active: true
+    category: "asset_error"
+    level: "WARNING"
+    trigger_file: "ContentLoadi"
+    pattern: "Could not find audio file: (?P<audio_file>.*?)"
+    description: "Sound effect file missing."
+
+  # --- SECTION 4: PHYSICS & SIMULATION ---
+
+  - id: "PHYS_FFB_RESET"
+    active: true
+    category: "physics"
+    level: "WARNING"
+    trigger_file: "hwinput.cpp"
+    pattern: "Resetting gamepad|Resetting FFB device"
+    description: "Force Feedback reset detected."
+    solution: "Check USB connection. Disable power saving mode for USB ports."
+
+  - id: "SYS_SLOW_FRAME"
+    active: true
+    category: "performance"
+    level: "WARNING"
+    # Example pattern for "Long frame time" (hypothetical, as not directly visible in the log, but typical)
+    pattern: "Frame time spike: (?P<ms>\\d+)ms"
+    description: "Long stutter detected."
+
+  - id: "PHYS_FFB_THROTTLING"
+    active: true
+    category: "performance"
+    level: "ERROR"
+    trigger_file: "hwinput.cpp"
+    # Matches: Force feedback strength safety reduction engaged at 75.65% due to slow physics ticks (302.63Hz).
+    pattern: "Force feedback strength safety reduction engaged at (?P<reduction_pct>[\\d\\.]+)% due to slow physics ticks \\((?P<physics_hz>[\\d\\.]+)Hz\\)"
+    description: "CPU is struggling to process physics. FFB has been reduced to prevent oscillation."
+    solution: "Reduce the number of AI opponents. Your CPU cannot maintain real-time physics (400Hz)."
+
+  - id: "PHYS_FFB_RESTORED"
+    active: true
+    category: "performance"
+    level: "INFO"
+    trigger_file: "hwinput.cpp"
+    pattern: "Force feedback strength safety reduction disengaged"
+    description: "CPU performance has stabilized; FFB returned to normal."
+
+  - id: "PHYS_PARAM_DEPRECATED"
+    active: true
+    category: "physics"
+    level: "WARNING"
+    trigger_file: "ContentLoadi"
+    # Matches: Car with semi-automatic transmission uses Up-/DownshiftClutchTime. Please update it...
+    pattern: "Car with .*? uses (?P<old_param>[\\w\\-\\/]+)\\. Please update it to use (?P<new_param>[\\w\\-\\/]+)"
+    description: "Vehicle physics file uses outdated parameters."
+    solution: "If using a mod/setup, check for updates. If official content, verify game files."
+
+  - id: "PHYS_PARAM_LOAD_FAIL"
+    active: true
+    category: "physics"
+    level: "WARNING"
+    trigger_file: "ContentLoadi"
+    # Matches: Failed to load 3 double values for: FWLiftHeightPlus
+    pattern: "Failed to load .*? for: (?P<parameter_name>\\w+)"
+    description: "Specific physics parameter failed to load from the HDV/Setup file."
+
+

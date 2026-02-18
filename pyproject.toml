@@ -1,8 +1,22 @@
 [project]
 name = "lmu"
 version = "0.1.0"
-description = "Add your description here"
+description = "LMU Log Checker"
 requires-python = ">=3.11"
 dependencies = [
+    "black>=26.1.0",
+    "dotenv>=0.9.9",
+    "mypy>=1.19.1",
     "pydantic>=2.12.5",
+    "pydantic-settings>=2.12.0",
+    "pytest>=9.0.2",
+    "ruff>=0.15.1",
+    "PyYAML>=6.0.1"
 ]
+
+[project.scripts]
+lmu-check = "main:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
