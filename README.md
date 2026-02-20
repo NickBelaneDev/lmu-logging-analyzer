@@ -1,65 +1,96 @@
-# LMU Log Checker & Settings Tool
+# 🏎️ LMU Log Checker & Settings Tool
 
-A Python-based toolset for analyzing Le Mans Ultimate (LMU) log files and managing game settings.
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Checked with mypy](http://www.mypy-lang.org/static/badge.svg)](http://mypy-lang.org/)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-## Features
+A high-performance toolkit for **Le Mans Ultimate (LMU)** enthusiasts and developers to analyze telemetry logs and fine-tune hardware settings.
 
-- **Log Analysis**: Detect hardware info, state changes, and errors in LMU log files using customizable regex patterns.
-- **Settings Management**: Easily read and modify LMU configuration files (e.g., `DirectInput.json`).
-- **CLI Interface**: Run analysis directly from your terminal.
+---
 
-## Installation
+## ✨ Key Features
 
-This project uses [uv](https://github.com/astral-sh/uv) for dependency management.
+- **🔍 Deep Log Analysis**: Automatically scans LMU trace files for hardware specs, physics drops, and missing assets.
+- **⚙️ Hardware Optimization**: Programmatically adjust `DirectInput.json` settings (e.g., fixing steering rotation issues).
+- **📊 Structured Reporting**: Get a clean, categorized overview of critical performance spikes and game state transitions.
+- **⚡ Powered by `uv`**: Ultra-fast dependency management and execution.
 
-1. Clone the repository.
-2. Install dependencies and set up the virtual environment:
-   ```sh
-   uv sync
-   ```
+---
 
-## Configuration
+## 🚀 Quick Start
 
-The tools rely on a `.env` file to locate your game files. Create a `.env` file in the root directory:
+### 1. Prerequisites
+Ensure you have [uv](https://github.com/astral-sh/uv) installed.
 
-```env
-TRACE_PATH="C:/Pfad/zu/deiner/Trace.txt"
-DIRECT_INPUT="C:/Pfad/zu/deiner/DirectInput.json"
+### 2. Installation
+```bash
+git clone https://github.com/NickBelaneDev/lmu-toolset.git
+cd lmu-toolset
+uv sync
 ```
 
-- `TRACE_PATH`: Path to your LMU `.txt` log file.
-- `DIRECT_INPUT`: Path to your `direct input.json` file.
+### 3. Configuration
+Create a `.env` file in the root directory to point to your LMU files:
 
-## Usage
+```env
+# Path to your LMU trace file
+TRACE_PATH="C:/Users/Name/AppData/Local/Low/Studio 397/Le Mans Ultimate/UserData/Log/trace_xxx.txt"
 
-### 1. Log Analysis
-Analyzes the log file specified in your `.env` and provides a detailed report on hardware, performance issues (e.g., Physics drops), and missing assets.
+# Path to your DirectInput settings
+DIRECT_INPUT="C:/Users/Name/AppData/Local/Low/Studio 397/Le Mans Ultimate/UserData/player/DirectInput.json"
+```
 
-```sh
+---
+
+## 🛠️ Usage
+
+### 📈 Run Log Analysis
+Get a detailed report on your last session, including physics performance and errors.
+```bash
 uv run python src/lmu_log_checker/main.py
 ```
 
-### 2. Settings Debugging
-Currently used to disable the automatic steering wheel rotation detection ("Steering Wheel Maximum Rotation From Driver") for all connected devices to prevent permanent polling and errors from not detecting the device's steering wheel radius.
-
-```sh
+### 🔧 Fix Steering Settings
+Automatically disable "Steering Wheel Maximum Rotation From Driver" for all devices to prevent calibration issues.
+```bash
 uv run python src/lmu_settings_debug/main.py
 ```
 
-## Example Log Report Output
-The tool provides structured feedback like:
-- **System Info**: CPU and detected Input Devices.
-- **Critical Performance**: Physics drops and FFB reductions.
-- **Detected Issues**: Missing textures, deprecated physics parameters, and state changes.
+---
 
-## Development
+## 📋 Example Report Output
 
-Run quality checks:
-```sh
-make quality
+```text
+========================================
+       LMU LOG ANALYSIS REPORT       
+========================================
+
+--- SYSTEM INFO ---
+CPU: 12th Gen Intel(R) Core(TM) i5-12400F (12 cores)
+Input Devices (4 found):
+  - Simucube 2 Pro
+  - VRS DirectForce Pro Pedals
+  ...
+
+!!! CRITICAL PERFORMANCE ISSUES (1x) !!!
+  - At 134.79s: Physics dropped to 5.39Hz (FFB reduced by 1.34%)
+
+[ERR_TEXTURE_MISSING]: 66 occurrences
+    -> $DEPTH RT $RAINDROPMAP
+    ...
 ```
 
-Fix formatting issues:
-```sh
-make fix
-```
+---
+
+## 🛠 Development
+
+Maintain code quality with these simple commands:
+
+| Command | Description |
+| :--- | :--- |
+| `make quality` | Run Ruff, Black, and Mypy checks |
+| `make fix` | Automatically fix formatting and linting issues |
+
+---
+*Developed with ❤️ for the SimRacing Community.*

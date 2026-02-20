@@ -2,3 +2,4 @@
 /.idea
 /.venv
 
+/src/lmu_settings_debug/main_local.py
