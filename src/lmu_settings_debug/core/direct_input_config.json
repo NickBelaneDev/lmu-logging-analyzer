@@ -1,0 +1,29 @@
+{
+  "periphery_defaults": {
+    "options": {
+      "Hardware 3Digit Display": 0,
+      "Brake Bias Axis": false,
+      "Gear Select Button Hold": false,
+      "Steering Wheel Maximum Rotation From Driver": false,
+      "use leds": false
+    },
+    "Force Feedback": {
+      "Enabled": false,
+      "constant steering force": false
+    }
+  },
+
+  "wheelbase_defaults": {
+    "options": {
+      "Hardware 3Digit Display": 0,
+      "Brake Bias Axis": false,
+      "Gear Select Button Hold": false,
+      "Steering Wheel Maximum Rotation From Driver": false,
+      "Steering Wheel Maximum Rotation": 900.0,
+      "use leds": false
+    },
+    "Force Feedback": {
+      "Enabled": true
+    }
+  }
+}

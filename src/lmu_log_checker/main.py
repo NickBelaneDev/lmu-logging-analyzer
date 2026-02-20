@@ -6,7 +6,6 @@ from lmu_log_checker.core.log_analyzer import LogAnalyzer
 from settings.settings import settings
 
 
-
 def load_patterns(file_path: Path) -> Any:
     """
     Loads the YAML patterns from the specified file path.
@@ -36,8 +35,8 @@ def print_summary(events):
     critical_events = []
 
     for e in events:
-        rule_id = e['rule_id']
-        data = e.get('captured_data', {})
+        rule_id = e["rule_id"]
+        data = e.get("captured_data", {})
 
         # 1. Zählen
         stats[rule_id] += 1
@@ -52,9 +51,11 @@ def print_summary(events):
 
         # 3. Hardware Infos separat speichern
         if rule_id == "HW_CPU_INFO":
-            hardware_info['CPU'] = f"{data.get('cpu_model')} ({data.get('cores')} cores)"
+            hardware_info["CPU"] = (
+                f"{data.get('cpu_model')} ({data.get('cores')} cores)"
+            )
         if rule_id == "HW_INPUT_DEVICE":
-            unique_data['DEVICES'].add(data.get('device_name').strip())
+            unique_data["DEVICES"].add(data.get("device_name").strip())
 
         # 4. Kritische Events merken
         if rule_id == "PHYS_FFB_THROTTLING":
@@ -64,12 +65,12 @@ def print_summary(events):
 
     # SYSTEM SECTION
     print("--- SYSTEM INFO ---")
-    if 'CPU' in hardware_info:
+    if "CPU" in hardware_info:
         print(f"CPU: {hardware_info['CPU']}")
 
-    if 'DEVICES' in unique_data:
+    if "DEVICES" in unique_data:
         print(f"Input Devices ({len(unique_data['DEVICES'])} found):")
-        for dev in sorted(unique_data['DEVICES']):
+        for dev in sorted(unique_data["DEVICES"]):
             print(f"  - {dev}")
     print("")
 
@@ -77,17 +78,24 @@ def print_summary(events):
     if stats["PHYS_FFB_THROTTLING"] > 0:
         print(f"!!! CRITICAL PERFORMANCE ISSUES ({stats['PHYS_FFB_THROTTLING']}x) !!!")
         for crit in critical_events:
-            d = crit['captured_data']
+            d = crit["captured_data"]
             print(
-                f"  - At {crit['timestamp']}s: Physics dropped to {d.get('physics_hz')}Hz (FFB reduced by {d.get('reduction_pct')}%)")
+                f"  - At {crit['timestamp']}s: Physics dropped to {d.get('physics_hz')}Hz (FFB reduced by {d.get('reduction_pct')}%)"
+            )
         print("")
 
     # ERRORS & WARNINGS SECTION
     print("--- DETECTED ISSUES ---")
 
     # Regeln definieren, die wir als Liste anzeigen wollen (nicht Hardware/State)
-    ignore_rules = ["HW_CPU_INFO", "HW_INPUT_DEVICE", "STATE_ENTER_GAME", "STATE_EXIT_GAME", "HW_STEER_RANGE_SET",
-                    "PHYS_FFB_THROTTLING"]
+    ignore_rules = [
+        "HW_CPU_INFO",
+        "HW_INPUT_DEVICE",
+        "STATE_ENTER_GAME",
+        "STATE_EXIT_GAME",
+        "HW_STEER_RANGE_SET",
+        "PHYS_FFB_THROTTLING",
+    ]
 
     for rule_id, count in stats.most_common():
         if rule_id in ignore_rules:
@@ -104,6 +112,7 @@ def print_summary(events):
                 print(f"    -> ... and {len(details) - 5} more unique items.")
         print("")
 
+
 # Am Ende deiner main.py aufrufen:
 # print_summary(result_list)
 
@@ -114,7 +123,7 @@ def main() -> None:
     """
     # Resolve the path to patterns.yaml relative to this script
     base_path = Path(__file__).parent
-    patterns_path = base_path / "patterns.yaml"
+    patterns_path = base_path / "core" / "patterns.yaml"
 
     log_analyzer = LogAnalyzer()
 
@@ -130,9 +139,9 @@ def main() -> None:
     with open(settings.trace_path, "r", encoding="utf-8") as trace_file:
         log_analyzer.process_log_file(trace_file.read())
 
-
     report = log_analyzer.generate_report_json()
     print_summary(report)
+
 
 """
  {'captured_data': {'parameter_name': 'FWLiftHeightPlus'},

@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from pydantic import BaseModel
 
-from lmu_log_checker.core.models.log_line import AnalysisEvent, AnalysisRule, LogLine
+from lmu_log_checker.core.log_line_model import AnalysisEvent, AnalysisRule, LogLine
 
 
 class LogAnalyzer(BaseModel):
