@@ -3,7 +3,7 @@ import pprint
 from lmu_settings_debug.core.manager import DeviceControlManager
 from settings import settings
 
-_first_step_explanation = f"""Your devices likely have a few default settings, that are causing cpu usage while lowering your game's overall performance.
+_first_step_explanation = """Your devices likely have a few default settings, that are causing cpu usage while lowering your game's overall performance.
 If you are experiencing slight stutters here and there, there is likely a chance, that your 'direct input.json' is a bit corrupted.
 Overall it is a good idea to run this setup, because it won't break anything but can only improve your performance.
 The following setup will configure your wheel base and disable the Force Feedback on devices like your brakes, steering wheel, haptic motors (yes the FFB is likely activated by default!) and more devices.
@@ -21,7 +21,7 @@ def main():
     print(f"Your trace.txt path is: {settings.trace_path}")
     print(f"Your direct input.json path is: {settings.direct_input}")
     print("")
-    print(f"\nThese are your devices:")
+    print("\nThese are your devices:")
     user_device_map = {}
     for i, device in enumerate(manager.get_devices()):
         user_device_map[i + 1] = device
@@ -32,10 +32,10 @@ def main():
         "\nDo you want to see what will be changed before starting? (y/n)\n -> "
     )
     if choice.lower() == "y":
-        print(f"\n -- PERIPHERY_DEVICES_CONFIG -- ")
+        print("\n -- PERIPHERY_DEVICES_CONFIG -- ")
         pprint.pprint(manager.periphery_defaults)
         print("")
-        print(f"\n -- WHEEL_BASE_CONFIG -- ")
+        print("\n -- WHEEL_BASE_CONFIG -- ")
         pprint.pprint(manager.wheelbase_defaults)
         print("")
 

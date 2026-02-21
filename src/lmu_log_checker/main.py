@@ -1,5 +1,6 @@
+from collections import Counter, defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, List, Dict, Set
 
 import yaml
 from lmu_log_checker.core.log_analyzer import LogAnalyzer
@@ -20,36 +21,33 @@ def load_patterns(file_path: Path) -> Any:
         return yaml.safe_load(file)
 
 
-from collections import Counter, defaultdict
+def print_summary(events: List[Dict[str, Any]]) -> None:
+    """
+    Prints a formatted summary of the log analysis results.
 
-
-def print_summary(events):
+    Args:
+        events (List[Dict[str, Any]]): The list of detected log events.
+    """
     print("\n" + "=" * 40)
     print("       LMU LOG ANALYSIS REPORT       ")
     print("=" * 40 + "\n")
 
-    # Speicher für Daten
-    stats = Counter()
-    unique_data = defaultdict(set)
-    hardware_info = {}
-    critical_events = []
+    stats: Counter[str] = Counter()
+    unique_data: Dict[str, Set[str]] = defaultdict(set)
+    hardware_info: Dict[str, str] = {}
+    critical_events: List[Dict[str, Any]] = []
 
     for e in events:
         rule_id = e["rule_id"]
         data = e.get("captured_data", {})
 
-        # 1. Zählen
         stats[rule_id] += 1
 
-        # 2. Einzigartige Daten sammeln (z.B. Dateinamen, Texturen)
-        # Wir nehmen alle Werte aus captured_data und fügen sie als String hinzu
         if data:
-            # Erstellt einen String aus den relevanten Daten, z.B. "file_name: layout.mas"
             info_str = ", ".join([str(v) for k, v in data.items() if v])
             if info_str:
                 unique_data[rule_id].add(info_str)
 
-        # 3. Hardware Infos separat speichern
         if rule_id == "HW_CPU_INFO":
             hardware_info["CPU"] = (
                 f"{data.get('cpu_model')} ({data.get('cores')} cores)"
@@ -57,7 +55,6 @@ def print_summary(events):
         if rule_id == "HW_INPUT_DEVICE":
             unique_data["DEVICES"].add(data.get("device_name").strip())
 
-        # 4. Kritische Events merken
         if rule_id == "PHYS_FFB_THROTTLING":
             critical_events.append(e)
 

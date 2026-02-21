@@ -1,7 +1,10 @@
+import sys
+
 from dotenv import load_dotenv, find_dotenv
+from pydantic import ValidationError, field_validator
 from pydantic_settings import BaseSettings
-from pydantic import field_validator
 from pathlib import Path
+from _helper.create_env import create_env
 
 load_dotenv(find_dotenv())
 
@@ -35,7 +38,28 @@ class Settings(BaseSettings):
         raise ValueError(f"Path: {_direct_input} does not exist.")
 
 
-settings = Settings()
+def get_settings() -> Settings:
+    """
+    Loads settings with a fallback to interactive creation.
+    """
+    try:
+        return Settings()  # type: ignore
+    except (ValidationError, ValueError):
+        print("\nConfiguration missing or invalid. Starting setup...")
+        create_env()
+
+        # Reload environment variables from the newly created .env
+        load_dotenv(find_dotenv(), override=True)
+
+        try:
+            return Settings()  # type: ignore
+        except (ValidationError, ValueError) as e:
+            print(f"\nCritical Error: Failed to load settings.\n{e}")
+            sys.exit(1)
+
+
+settings = get_settings()
+
 
 if __name__ == "__main__":
     print(settings.trace_path)

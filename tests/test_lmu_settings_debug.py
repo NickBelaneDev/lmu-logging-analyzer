@@ -48,7 +48,10 @@ def _make_manager(tmp_path: Path, monkeypatch):
         staticmethod(lambda: config_path),
     )
 
-    return manager_module.DeviceControlManager(file_path=direct_input_path), direct_input_path
+    return (
+        manager_module.DeviceControlManager(file_path=direct_input_path),
+        direct_input_path,
+    )
 
 
 def test_get_devices_excludes(tmp_path: Path, monkeypatch) -> None:
@@ -81,7 +84,9 @@ def test_apply_to_all_respects_exclude(tmp_path: Path, monkeypatch) -> None:
     assert data["Devices"]["Pedals"]["Force Feedback"]["Gain"] == 75
 
 
-def test_update_device_option_updates_single_device(tmp_path: Path, monkeypatch) -> None:
+def test_update_device_option_updates_single_device(
+    tmp_path: Path, monkeypatch
+) -> None:
     manager, direct_input_path = _make_manager(tmp_path, monkeypatch)
 
     manager.update_device_option("Damper", 0, device_name="Wheel")

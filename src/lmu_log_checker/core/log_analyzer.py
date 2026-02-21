@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from pydantic import BaseModel
 
-from lmu_log_checker.core.log_line_model import AnalysisEvent, AnalysisRule, LogLine
+from lmu_log_checker.core.models import AnalysisEvent, AnalysisRule, LogLine
 
 
 class LogAnalyzer(BaseModel):
@@ -11,7 +11,7 @@ class LogAnalyzer(BaseModel):
     Analyzer for log files based on defined rules.
     """
 
-    LOG_PATTERN: re.Pattern = re.compile(
+    LOG_PATTERN: re.Pattern = re.compile(  # Splits the log line into a scheme
         r"^\s*(?P<timestamp>\d+\.\d+)s"
         r"\s+(?P<file>[\w\.]+)"
         r"\s+(?P<line_number>\d+):"
@@ -51,7 +51,13 @@ class LogAnalyzer(BaseModel):
             if not match:
                 continue
 
-            log_entry = LogLine(**match.groupdict())
+            data = match.groupdict()
+            log_entry = LogLine(
+                timestamp=float(data["timestamp"]),
+                file=data["file"],
+                line_number=int(data["line_number"]),
+                message=data["message"],
+            )
 
             for rule in self.rules:
                 if rule.trigger_file and rule.trigger_file != log_entry.file:

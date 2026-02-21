@@ -5,14 +5,14 @@
 [![Checked with mypy](http://www.mypy-lang.org/static/badge.svg)](http://mypy-lang.org/)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-A high-performance toolkit for **Le Mans Ultimate (LMU)** enthusiasts and developers to analyze telemetry logs and fine-tune hardware settings.
+A performance toolkit for **Le Mans Ultimate (LMU)** enthusiasts and developers to analyze the ingame logs (trace.txt) and fine-tune hardware settings.
 
 ---
 
 ## ✨ Key Features
 
 - **🔍 Deep Log Analysis**: Automatically scans LMU trace files for hardware specs, physics drops, and missing assets.
-- **⚙️ Hardware Optimization**: Programmatically adjust `DirectInput.json` settings (e.g., fixing steering rotation issues).
+- **⚙️ Hardware Optimization**: Programmatically adjust `direct input.json` settings (e.g., fixing steering rotation issues).
 - **📊 Structured Reporting**: Get a clean, categorized overview of critical performance spikes and game state transitions.
 - **⚡ Powered by `uv`**: Ultra-fast dependency management and execution.
 
@@ -32,14 +32,6 @@ uv sync
 
 ### 3. Configuration
 Create a `.env` file in the root directory to point to your LMU files:
-
-```env
-# Path to your LMU trace file
-TRACE_PATH="C:/Users/Name/AppData/Local/Low/Studio 397/Le Mans Ultimate/UserData/Log/trace_xxx.txt"
-
-# Path to your DirectInput settings
-DIRECT_INPUT="C:/Users/Name/AppData/Local/Low/Studio 397/Le Mans Ultimate/UserData/player/DirectInput.json"
-```
 
 ---
 
