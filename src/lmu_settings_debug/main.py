@@ -1,5 +1,5 @@
 import pprint
-
+from time import sleep
 from lmu_settings_debug.core.manager import DeviceControlManager
 from settings import settings
 
@@ -27,6 +27,8 @@ def main():
         user_device_map[i + 1] = device
         print(f"{i + 1}  - {device}")
 
+    sleep(0.3)
+
     # Show what will be changed
     choice = input(
         "\nDo you want to see what will be changed before starting? (y/n)\n -> "
@@ -38,6 +40,8 @@ def main():
         print("\n -- WHEEL_BASE_CONFIG -- ")
         pprint.pprint(manager.wheelbase_defaults)
         print("")
+
+    sleep(0.3)
 
     choice = input(
         "You should create a backup of your existing direct input.json. Do you want to do that automatically?(y/n)\n -> "
@@ -59,7 +63,7 @@ def main():
     manager.apply_to_device(user_wheelbase, manager.wheelbase_defaults)
 
     print("")
-
+    sleep(0.3)
     print("\n--- Peripheral Devices Update ---")
     choice = input("Do you want to autocorrect the rest of your devices? (y/n)\n -> ")
     if choice.lower() == "y":

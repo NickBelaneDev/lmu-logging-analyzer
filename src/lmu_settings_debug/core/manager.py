@@ -131,7 +131,7 @@ class DeviceControlManager:
 
     @staticmethod
     def _get_config_path():
-        _config_path = Path(__file__).parent / "direct_input_config.json"
+        _config_path = Path(__file__).parent.parent / "direct_input_config.json"
         if not _config_path.exists():
             raise FileNotFoundError(f"Config file not found: {_config_path}")
         return _config_path
