@@ -66,4 +66,53 @@ foreach ($deviceName in $devices) {
 # 6. Save with correct depth
 $settings | ConvertTo-Json -Depth 10 | Set-Content $settingsPath
 Write-Host "`nSuccessfully saved! You can now start the game." -ForegroundColor Green
+
+# 7. Game Options: optionally disable replay & telemetry recording (Settings.JSON)
+$gameSettingsPath = Join-Path $gameRoot "UserData\player\Settings.JSON"
+
+if (-not (Test-Path $gameSettingsPath)) {
+    Write-Warning "Settings.JSON not found at: $gameSettingsPath. Skipping Game Options step."
+} else {
+    Write-Host "`n--- Game Options ---" -ForegroundColor Cyan
+    $gameSettings = Get-Content $gameSettingsPath -Raw | ConvertFrom-Json
+
+    $disableReplay = (Read-Host "Disable replay recording? It often causes stutters. (y/n)") -eq "y"
+    $disableTelemetry = (Read-Host "Disable automatic telemetry recording? (y/n)") -eq "y"
+
+    if ($disableReplay -or $disableTelemetry) {
+        # Backup before modification
+        $gsTimestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+        Copy-Item $gameSettingsPath "$gameSettingsPath.bak_$gsTimestamp"
+        Write-Host "Backup created: Settings.JSON.bak_$gsTimestamp"
+
+        $gameOptions = $gameSettings.'Game Options'
+        if ($null -eq $gameOptions) {
+            Write-Warning "Section 'Game Options' not found in Settings.JSON. Skipping."
+        } else {
+            if ($disableReplay) {
+                if ($gameOptions.PSObject.Properties.Name -contains "Record Replays") {
+                    $gameOptions.'Record Replays' = $false
+                    Write-Host "Disabled replay recording."
+                } else {
+                    Write-Warning "Option 'Record Replays' not found. Skipping."
+                }
+            }
+            if ($disableTelemetry) {
+                if ($gameOptions.PSObject.Properties.Name -contains "Automatically Record Telemetry") {
+                    $gameOptions.'Automatically Record Telemetry' = $false
+                    Write-Host "Disabled automatic telemetry recording."
+                } else {
+                    Write-Warning "Option 'Automatically Record Telemetry' not found. Skipping."
+                }
+            }
+
+            # Settings.JSON is deeply nested; use a high depth so nothing is truncated.
+            $gameSettings | ConvertTo-Json -Depth 50 | Set-Content $gameSettingsPath
+            Write-Host "Game Options saved." -ForegroundColor Green
+        }
+    } else {
+        Write-Host "Leaving Game Options unchanged."
+    }
+}
+
 Pause
