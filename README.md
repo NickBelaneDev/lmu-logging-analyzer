@@ -47,16 +47,19 @@ uv sync
 
 ### 3. Usage
 
+> The modules use absolute imports, so `src/` must be on `PYTHONPATH` when running them
+> (PowerShell: `$env:PYTHONPATH = "src"`).
+
 #### 📈 Run Log Analysis
 Analyze your last session for errors and performance issues:
 ```bash
-uv run python src/lmu_log_checker/main.py
+PYTHONPATH=src uv run python -m lmu_log_checker.main
 ```
 
 #### 🔧 Interactive Settings Debugger
 Fine-tune your `direct input.json` interactively:
 ```bash
-uv run python src/lmu_settings_debug/main.py
+PYTHONPATH=src uv run python -m lmu_settings_debug.main
 ```
 
 ---

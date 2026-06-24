@@ -21,9 +21,13 @@ uv run pytest tests/test_lmu_settings_debug.py::test_create_backup_creates_file 
 make quality                         # ruff check + black --check + mypy src  (CI gate)
 make fix                             # ruff --fix + black + mypy
 
-uv run python src/lmu_log_checker/main.py      # run the log analyzer
-uv run python src/lmu_settings_debug/main.py   # run the interactive settings debugger
+# src/ must be on PYTHONPATH: the modules use absolute imports (e.g.
+# `from settings import settings`) but src/ is only auto-added for pytest.
+PYTHONPATH=src uv run python -m lmu_log_checker.main      # run the log analyzer
+PYTHONPATH=src uv run python -m lmu_settings_debug.main   # interactive settings debugger
 ```
+
+> Running `uv run python src/lmu_log_checker/main.py` directly fails with `ModuleNotFoundError`: executing a script puts its own directory (`src/lmu_log_checker/`) on `sys.path`, not `src/`. Set `PYTHONPATH=src` (PowerShell: `$env:PYTHONPATH = "src"`) so the absolute imports resolve.
 
 CI (`.github/workflows/ci.yml`) runs the `quality` checks first, then `pytest`. `mypy` is only run against `src`, not `tests`.
 
