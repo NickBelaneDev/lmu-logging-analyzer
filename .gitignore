@@ -3,3 +3,19 @@
 /.venv
 
 /src/lmu_settings_debug/main_local.py
+
+# Byte-compiled / optimized
+__pycache__/
+*.py[cod]
+
+# Tooling caches
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Packaging
+build/
+dist/
+*.egg-info/
