@@ -1,6 +1,7 @@
 import pprint
 from time import sleep
 from lmu_settings_debug.core.manager import DeviceControlManager
+from lmu_settings_debug.core.game_settings import GameSettingsManager
 from settings import settings
 
 _first_step_explanation = """Your devices likely have a few default settings, that are causing cpu usage while lowering your game's overall performance.
@@ -9,6 +10,42 @@ Overall it is a good idea to run this setup, because it won't break anything but
 The following setup will configure your wheel base and disable the Force Feedback on devices like your brakes, steering wheel, haptic motors (yes the FFB is likely activated by default!) and more devices.
 If you want to exclude any device from the settings, the setup will tell you how. 
 If you want to see what's going on behind, open the src/lmu_settings_debug/main_local.py file and see the settings payloads."""
+
+
+def configure_game_options() -> None:
+    """
+    Interactive step: optionally disable replay and telemetry recording in
+    Settings.JSON. Replay recording in particular is a common stutter source.
+
+    Skips gracefully if Settings.JSON cannot be located.
+    """
+    print("\n--- Game Options ---")
+    try:
+        game_settings = GameSettingsManager()
+    except FileNotFoundError:
+        print(
+            "Could not locate your Settings.JSON, skipping this step. "
+            "Your device settings above were still applied."
+        )
+        return
+
+    disable_replay = (
+        input("Disable replay recording? It often causes stutters. (y/n)\n -> ").lower()
+        == "y"
+    )
+    disable_telemetry = (
+        input("Disable automatic telemetry recording? (y/n)\n -> ").lower() == "y"
+    )
+
+    if not (disable_replay or disable_telemetry):
+        print("Leaving Game Options unchanged.")
+        return
+
+    game_settings.create_backup()
+    if disable_replay:
+        game_settings.disable_replay_recording()
+    if disable_telemetry:
+        game_settings.disable_telemetry_recording()
 
 
 def main():
@@ -68,6 +105,9 @@ def main():
     choice = input("Do you want to autocorrect the rest of your devices? (y/n)\n -> ")
     if choice.lower() == "y":
         manager.apply_to_all(manager.periphery_defaults, to_exclude=[user_wheelbase])
+
+    sleep(0.3)
+    configure_game_options()
 
     print(
         "\nCongrats! You have successfully updated your LMU Device Settings!\nIt's highly recommended to run the lmu_log_checker/main.py after a few laps to check if everything is working now.\n\n Good luck racing!"
